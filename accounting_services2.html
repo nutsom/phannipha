@@ -1,0 +1,226 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บริการจัดทำบัญชีและยื่นภาษี</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+        .header-bg {
+            background: linear-gradient(to right, #1e3a8a, #3b82f6);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+        .table-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            text-align: center;
+            padding: 1rem;
+        }
+        th {
+            background: #1e3a8a;
+            color: white;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .contact-card {
+            background: linear-gradient(to right, #1e40af, #3b82f6);
+            border-radius: 1rem;
+            transition: transform 0.3s ease;
+        }
+        .contact-card:hover {
+            transform: translateY(-5px);
+        }
+        .service-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="header-bg text-white py-16 text-center">
+            <div class="container mx-auto px-4">
+                <h1 class="text-5xl font-bold mb-4 animate-fade-in">บริการจัดทำบัญชีและยื่นภาษี</h1>
+                <p class="text-xl mb-6">โซลูชันมืออาชีพสำหรับธุรกิจขนาดเล็กและขนาดกลาง</p>
+                <a href="#contact" class="bg-yellow-400 text-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-yellow-300 transition">ติดต่อเรา</a>
+            </div>
+        </header>
+
+        <!-- Service Pricing -->
+        <section class="container mx-auto px-4 py-12">
+            <h2 class="text-3xl font-bold text-blue-900 text-center mb-8">ตารางค่าบริการ</h2>
+            <p class="text-center text-gray-600 mb-8">ค่าบริการด้านบัญชีและภาษีตามจำนวนรายการต่อเดือน</p>
+            <div class="table-container overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr>
+                            <th>จำนวนรายการ/เดือน</th>
+                            <th>ค่าทำบัญชีรายเดือน (บาท)</th>
+                            <th>ค่ายื่นภาษีรายเดือน (บาท)</th>
+                            <th>ค่าบริการรายเดือน (บาท)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border px-4 py-3">≤ 30</td>
+                            <td class="border px-4 py-3">2,500.00</td>
+                            <td class="border px-4 py-3">500.00</td>
+                            <td class="border px-4 py-3">3,000.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">31-50</td>
+                            <td class="border px-4 py-3">3,000.00</td>
+                            <td class="border px-4 py-3">1,000.00</td>
+                            <td class="border px-4 py-3">4,000.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">51-100</td>
+                            <td class="border px-4 py-3">4,000.00</td>
+                            <td class="border px-4 py-3">1,000.00</td>
+                            <td class="border px-4 py-3">5,000.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">101-150</td>
+                            <td class="border px-4 py-3">5,000.00</td>
+                            <td class="border px-4 py-3">1,500.00</td>
+                            <td class="border px-4 py-3">6,500.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">151-200</td>
+                            <td class="border px-4 py-3">5,500.00</td>
+                            <td class="border px-4 py-3">2,000.00</td>
+                            <td class="border px-4 py-3">7,500.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">201-300</td>
+                            <td class="border px-4 py-3">7,500.00</td>
+                            <td class="border px-4 py-3">2,000.00</td>
+                            <td class="border px-4 py-3">9,500.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">301-350</td>
+                            <td class="border px-4 py-3">11,500.00</td>
+                            <td class="border px-4 py-3">3,000.00</td>
+                            <td class="border px-4 py-3">14,500.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">351-400</td>
+                            <td class="border px-4 py-3">14,500.00</td>
+                            <td class="border px-4 py-3">5,000.00</td>
+                            <td class="border px-4 py-3">19,500.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">401-500</td>
+                            <td class="border px-4 py-3">19,500.00</td>
+                            <td class="border px-4 py-3">5,000.00</td>
+                            <td class="border px-4 py-3">24,500.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-3">มากกว่า 500</td>
+                            <td class="border px-4 py-3" colspan="3">*คิดราคาอีกครั้งตามที่ตกลงกัน</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-sm text-gray-600 mt-6 text-center">*ราคานี้เฉพาะค่าบริการทำบัญชี (ไม่รวมค่าสอบบัญชี) และขึ้นอยู่กับประเภทธุรกิจและความยากง่ายของธุรกิจ</p>
+            <p class="text-sm text-gray-600 text-center">ธุรกิจซื้อมาขายไป, ร้านค้าที่มีสินค้า ราคายังไม่รวมการนับสต๊อคสินค้าประจำปี</p>
+        </section>
+
+        <!-- Service Details -->
+        <section class="container mx-auto px-4 py-12">
+            <h2 class="text-3xl font-bold text-blue-900 text-center mb-8">รายละเอียดบริการ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="service-card p-6">
+                    <h3 class="text-xl font-semibold text-blue-600 mb-2">บันทึกรายการบัญชี</h3>
+                    <p class="text-gray-600">บันทึกรายการซื้อ ขาย รับ จ่าย ทั่วไป</p>
+                </div>
+                <div class="service-card p-6">
+                    <h3 class="text-xl font-semibold text-blue-600 mb-2">ยื่นภาษีประจำเดือน</h3>
+                    <p class="text-gray-600">จัดทำและยื่นภาษีมูลค่าเพิ่ม (ภ.พ.30), ภาษีธุรกิจเฉพาะ (ภ.ธ.40), ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.1, 2, 3, 53), ภาษีนิติบุคคล (ภ.ง.ด.50, 51)</p>
+                </div>
+                <div class="service-card p-6">
+                    <h3 class="text-xl font-semibold text-blue-600 mb-2">Bank Reconcile</h3>
+                    <p class="text-gray-600">กระทบยอดบัญชีธนาคารอย่างแม่นยำ</p>
+                </div>
+                <div class="service-card p-6">
+                    <h3 class="text-xl font-semibold text-blue-600 mb-2">กระทบยอดบัญชี (GL)</h3>
+                    <p class="text-gray-600">ตรวจสอบและกระทบยอดรายการทางบัญชี</p>
+                </div>
+                <div class="service-card p-6">
+                    <h3 class="text-xl font-semibold text-blue-600 mb-2">ปิดงบประจำปี</h3>
+                    <p class="text-gray-600">จัดทำและนำส่งงบการเงินประจำปี (ภ.ง.ด.50, 51)</p>
+                </div>
+                <div class="service-card p-6">
+                    <h3 class="text-xl font-semibold text-blue-600 mb-2">บริการอื่นๆ</h3>
+                    <p class="text-gray-600">บริการเพิ่มเติมตามความต้องการและข้อตกลง</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="container mx-auto px-4 py-12">
+            <div class="contact-card text-white p-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">ติดต่อสอบถาม</h2>
+                <p class="text-lg mb-4">สนใจปรึกษาหรือสอบถามเพิ่มเติม ติดต่อ คุณเก๋</p>
+                <p class="text-lg">โทร: <a href="tel:+66865685918" class="underline hover:text-yellow-300">086-568-5918</a></p>
+                <p class="text-lg">อีเมล: <a href="mailto:phanniphap69@gmail.com" class="underline hover:text-yellow-300">phanniphap69@gmail.com</a></p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
